@@ -1,11 +1,26 @@
+using ChadApp.Models;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
-builder.Services.AddControllers();
+/*builder.Services.AddControllers();*/
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+//Added DI
+builder.Services.AddCors(options =>
+{
+    options.AddDefaultPolicy(
+        builder =>
+        {
+            builder.WithOrigins("https://example.com")
+                .AllowAnyHeader()
+                .WithMethods("GET", "POST")
+                .AllowCredentials();
+        });
+});
+builder.Services.AddSignalR();
 
 var app = builder.Build();
 
@@ -19,7 +34,10 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 
 app.UseAuthorization();
-
-app.MapControllers();
-
+app.UseCors();
+app.UseRouting();
+app.UseEndpoints(ep =>
+{
+    ep.MapHub<ChadHub>("/chadHub");
+});
 app.Run();
